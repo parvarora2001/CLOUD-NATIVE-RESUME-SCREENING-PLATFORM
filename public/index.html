@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume + Interview Screening Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .analysis-type-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .type-option {
+            padding: 12px 24px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            font-weight: 600;
+        }
+
+        .type-option.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .type-option:hover {
+            border-color: #667eea;
+        }
+
+        .upload-section {
+            margin-bottom: 25px;
+            transition: opacity 0.3s ease;
+        }
+
+        .upload-section.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .upload-label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-display {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border: 2px dashed #ddd;
+            border-radius: 12px;
+            background: #fafafa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-input-display:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .file-input-display.active {
+            border-color: #667eea;
+            background: #f0f2ff;
+            border-style: solid;
+        }
+
+        .file-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            fill: #666;
+        }
+
+        .file-text {
+            color: #666;
+            font-size: 1em;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            border-left: 5px solid #667eea;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .decision {
+            font-size: 1.3em;
+            font-weight: 700;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+        }
+
+        .decision.excellent { background: #28a745; }
+        .decision.good { background: #28a745; }
+        .decision.average { background: #ffc107; color: #333; }
+        .decision.poor { background: #dc3545; }
+
+        .scores {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .score-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .analysis-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+
+        .analysis-section h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .analysis-section p {
+            color: #555;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .transcript-section {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #dc3545;
+            margin-top: 20px;
+        }
+
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 1em;
+            transition: background 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: #5a6268;
+        }
+
+        .analysis-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                margin: 10px;
+                padding: 25px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .analysis-type-selector {
+                flex-direction: column;
+            }
+            
+            .result-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 AI Hiring Assistant</h1>
+            <p>Comprehensive candidate evaluation with resume and interview analysis</p>
+        </div>
+
+        <div class="analysis-type-selector">
+            <div class="type-option active" data-type="resume-only">📄 Resume Only</div>
+            <div class="type-option" data-type="complete">🎤 Complete Analysis</div>
+        </div>
+
+        <form id="screeningForm">
+            <div class="upload-section" id="resumeSection">
+                <label class="upload-label">Resume File *</label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="resumeFile" class="file-input" accept=".pdf,.doc,.docx" required>
+                    <div class="file-input-display" id="resumeDisplay">
+                        <svg class="file-icon" viewBox="0 0 24 24">
+                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                        </svg>
+                        <span class="file-text">Click to upload resume (.pdf, .doc, .docx)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="upload-section" id="jobSection">
+                <label class="upload-label">Job Description *</label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="jobFile" class="file-input" accept=".txt,.pdf,.doc,.docx" required>
+                    <div class="file-input-display" id="jobDisplay">
+                        <svg class="file-icon" viewBox="0 0 24 24">
+                            <path d="M13,9H18.5L13,3.5V9M6,2H14L20,8V20A2,2 0 0,1 18,22H6C4.89,22 4,21.1 4,20V4C4,2.89 4.89,2 6,2M15,18V16H6V18H15M18,14V12H6V14H18Z" />
+                        </svg>
+                        <span class="file-text">Click to upload job description (.txt, .pdf, .doc, .docx)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="upload-section" id="interviewSection" style="display: none;">
+                <label class="upload-label">Interview Recording *</label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="interviewFile" class="file-input" accept=".mp3,.wav,.m4a">
+                    <div class="file-input-display" id="interviewDisplay">
+                        <svg class="file-icon" viewBox="0 0 24 24">
+                            <path d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z" />
+                        </svg>
+                        <span class="file-text">Click to upload interview audio (.mp3, .wav, .m4a)</span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <span id="submitText">Analyze Resume Match</span>
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p id="loadingText">Analyzing resume compatibility... This may take a moment.</p>
+        </div>
+
+        <div class="results" id="results"></div>
+    </div>
+
+    <script>
+        const API_URL_RESUME_ONLY = 'https://resume-screening-757300761760.us-central1.run.app/score/';
+        const API_URL_COMPLETE = 'https://resume-screening-757300761760.us-central1.run.app/analyze-complete/';
+        
+        let currentAnalysisType = 'resume-only';
+        
+        // Analysis type selector
+        document.querySelectorAll('.type-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.type-option').forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+                
+                currentAnalysisType = this.dataset.type;
+                updateFormForAnalysisType();
+            });
+        });
+        
+        function updateFormForAnalysisType() {
+            const interviewSection = document.getElementById('interviewSection');
+            const interviewFile = document.getElementById('interviewFile');
+            const submitText = document.getElementById('submitText');
+            
+            if (currentAnalysisType === 'complete') {
+                interviewSection.style.display = 'block';
+                interviewFile.required = true;
+                submitText.textContent = 'Analyze Resume + Interview';
+            } else {
+                interviewSection.style.display = 'none';
+                interviewFile.required = false;
+                interviewFile.value = '';
+                submitText.textContent = 'Analyze Resume Match';
+                updateFileDisplay('interviewDisplay', 'Click to upload interview audio (.mp3, .wav, .m4a)');
+            }
+        }
+        
+        // File input handlers
+        function setupFileInput(inputId, displayId, defaultText) {
+            const input = document.getElementById(inputId);
+            const display = document.getElementById(displayId);
+            
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                updateFileDisplay(displayId, file ? `Selected: ${file.name}` : defaultText, !!file);
+            });
+            
+            display.addEventListener('click', function() {
+                input.click();
+            });
+            
+            // Drag and drop
+            display.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                display.style.borderColor = '#667eea';
+                display.style.background = '#f0f2ff';
+            });
+            
+            display.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                if (!input.files[0]) {
+                    display.style.borderColor = '#ddd';
+                    display.style.background = '#fafafa';
+                }
+            });
+            
+            display.addEventListener('drop', function(e) {
+                e.preventDefault();
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    input.files = files;
+                    input.dispatchEvent(new Event('change'));
+                }
+            });
+        }
+        
+        function updateFileDisplay(displayId, text, active = false) {
+            const display = document.getElementById(displayId);
+            const span = display.querySelector('.file-text');
+            span.textContent = text;
+            
+            if (active) {
+                display.classList.add('active');
+            } else {
+                display.classList.remove('active');
+            }
+        }
+        
+        setupFileInput('resumeFile', 'resumeDisplay', 'Click to upload resume (.pdf, .doc, .docx)');
+        setupFileInput('jobFile', 'jobDisplay', 'Click to upload job description (.txt, .pdf, .doc, .docx)');
+        setupFileInput('interviewFile', 'interviewDisplay', 'Click to upload interview audio (.mp3, .wav, .m4a)');
+        
+        // Form submission
+        document.getElementById('screeningForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const resumeFile = document.getElementById('resumeFile').files[0];
+            const jobFile = document.getElementById('jobFile').files[0];
+            const interviewFile = document.getElementById('interviewFile').files[0];
+            
+            if (!resumeFile || !jobFile) {
+                showError('Please select both resume and job description files.');
+                return;
+            }
+            
+            if (currentAnalysisType === 'complete' && !interviewFile) {
+                showError('Please select an interview audio file for complete analysis.');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('screeningForm').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            
+            const loadingText = document.getElementById('loadingText');
+            if (currentAnalysisType === 'complete') {
+                loadingText.textContent = 'Transcribing interview and analyzing... This may take several minutes.';
+            }
+            
+            try {
+                const formData = new FormData();
+                formData.append('resume', resumeFile);
+                formData.append('job', jobFile);
+                
+                let apiUrl = API_URL_RESUME_ONLY;
+                if (currentAnalysisType === 'complete') {
+                    formData.append('interview', interviewFile);
+                    apiUrl = API_URL_COMPLETE;
+                }
+                
+                console.log('Sending request to:', apiUrl);
+                console.log('Analysis type:', currentAnalysisType);
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    body: formData,
+                    signal: AbortSignal.timeout(300000) // 5 minute timeout for interview processing
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Response error:', errorText);
+                    throw new Error(`API Error: ${response.status} - ${response.statusText}\nDetails: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Success! Received data:', data);
+                displayResults(data);
+                
+            } catch (error) {
+                console.error('Full error object:', error);
+                
+                let errorMessage = 'Unknown error occurred';
+                
+                if (error.name === 'TimeoutError') {
+                    errorMessage = 'Request timeout - interview processing took too long';
+                } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    errorMessage = 'Network error - cannot connect to server';
+                } else {
+                    errorMessage = error.message;
+                }
+                
+                showError(`Failed to analyze: ${errorMessage}`);
+            }
+            
+            document.getElementById('loading').style.display = 'none';
+        });
+        
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            
+            let decisionClass = 'poor';
+            if (data.decision && data.decision.toLowerCase().includes('excellent')) {
+                decisionClass = 'excellent';
+            } else if (data.decision && data.decision.toLowerCase().includes('good')) {
+                decisionClass = 'good';
+            } else if (data.decision && data.decision.toLowerCase().includes('average')) {
+                decisionClass = 'average';
+            }
+            
+            let scoresHtml = `
+                <div class="score-item">
+                    <div class="score-label">Resume Match</div>
+                    <div class="score-value">${(data.cosine_score * 100).toFixed(1)}%</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">LLM Score</div>
+                    <div class="score-value">${data.llm_score || 'N/A'}/10</div>
+                </div>`;
+                
+            if (data.analysis_type === 'complete') {
+                scoresHtml += `
+                    <div class="score-item">
+                        <div class="score-label">Interview</div>
+                        <div class="score-value">${(data.interview_score * 100).toFixed(1)}%</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Combined</div>
+                        <div class="score-value">${(data.combined_score * 100).toFixed(1)}%</div>
+                    </div>`;
+            }
+            
+            let analysisHtml = `
+                <div class="analysis-section">
+                    <div class="analysis-badge">Resume Analysis</div>
+                    <h3>Detailed Analysis</h3>
+                    <p>${data.explanation}</p>
+                </div>`;
+                
+            if (data.analysis_type === 'complete' && data.interview_analysis) {
+                analysisHtml += `
+                    <div class="analysis-section">
+                        <div class="analysis-badge">Interview Analysis</div>
+                        <h3>Interview Evaluation</h3>
+                        <p>${data.interview_analysis}</p>
+                    </div>`;
+                    
+                if (data.interview_transcript) {
+                    analysisHtml += `
+                        <div class="analysis-section">
+                            <div class="analysis-badge">Transcript</div>
+                            <h3>Interview Transcript</h3>
+                            <div class="transcript-section">
+                                <p>${data.interview_transcript}</p>
+                            </div>
+                        </div>`;
+                }
+            }
+            
+            resultsDiv.innerHTML = `
+                <div class="result-card">
+                    <div class="result-header">
+                        <h2>Analysis Results</h2>
+                        <span class="decision ${decisionClass}">${data.decision || 'No Decision'}</span>
+                    </div>
+                    
+                    <div class="scores">
+                        ${scoresHtml}
+                    </div>
+                    
+                    ${analysisHtml}
+                    
+                    <button class="reset-btn" onclick="resetForm()">Analyze Another Candidate</button>
+                </div>
+            `;
+            
+            resultsDiv.style.display = 'block';
+        }
+        
+        function showError(message) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="error">
+                    <h3>❌ Error</h3>
+                    <p>${message}</p>
+                    <button class="reset-btn" onclick="resetForm()">Try Again</button>
+                </div>
+            `;
+            resultsDiv.style.display = 'block';
+            document.getElementById('screeningForm').style.display = 'block';
+        }
+        
+        function resetForm() {
+            document.getElementById('screeningForm').reset();
+            document.getElementById('screeningForm').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('loading').style.display = 'none';
+            
+            // Reset file displays
+            updateFileDisplay('resumeDisplay', 'Click to upload resume (.pdf, .doc, .docx)');
+            updateFileDisplay('jobDisplay', 'Click to upload job description (.txt, .pdf, .doc, .docx)');
+            updateFileDisplay('interviewDisplay', 'Click to upload interview audio (.mp3, .wav, .m4a)');
+            
+            // Reset to default analysis type
+            document.querySelectorAll('.type-option').forEach(o => o.classList.remove('active'));
+            document.querySelector('[data-type="resume-only"]').classList.add('active');
+            currentAnalysisType = 'resume-only';
+            updateFormForAnalysisType();
+        }
+    </script>
+    <!-- <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+        apiKey: "AIzaSyD1yOpaQ2EbC48BK1x_TM10Lr1rEPs6qxo",
+        authDomain: "capstone-8a43c.firebaseapp.com",
+        projectId: "capstone-8a43c",
+        storageBucket: "capstone-8a43c.firebasestorage.app",
+        messagingSenderId: "487354344934",
+        appId: "1:487354344934:web:72198a5d568d21933f6227",
+        measurementId: "G-QCZ2FWJGNZ"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    </script> -->
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyCO-7s-cKzsmy476TBengEIO_2i63IXa5E",
+    authDomain: "resume-screening-fb491.firebaseapp.com",
+    projectId: "resume-screening-fb491",
+    storageBucket: "resume-screening-fb491.firebasestorage.app",
+    messagingSenderId: "467096183295",
+    appId: "1:467096183295:web:903f5efe77ffa7543647ca",
+    measurementId: "G-QZ8H49EX5T"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+</body>
+</html>

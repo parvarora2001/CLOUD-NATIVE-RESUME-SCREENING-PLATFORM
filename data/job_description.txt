@@ -1,0 +1,29 @@
+Job Title: Senior Business Analyst – Software Development & Machine Learning
+
+Job Description:
+We are seeking an experienced Senior Business Analyst with a strong background in software development, business analytics, and machine learning. The ideal candidate will bridge the gap between technical teams and business stakeholders to drive data-driven solutions that enhance business performance. You will play a critical role in gathering requirements, analyzing complex data, and helping develop ML-powered products and software solutions.
+
+Key Responsibilities:
+
+Collaborate with product owners, data scientists, software engineers, and business stakeholders to understand and document business requirements.
+Analyze current business processes and workflows to identify automation opportunities and data-driven improvements.
+Translate business needs into detailed technical specifications for software and machine learning projects.
+Support the design, development, and deployment of machine learning models by providing domain expertise and validating outputs.
+Utilize business analytics tools and programming skills to analyze large datasets and generate actionable insights.
+Develop dashboards, reports, and presentations to communicate findings to both technical and non-technical audiences.
+Manage project scope, timelines, and deliverables while ensuring alignment with business goals.
+Stay current with industry trends in software development, data analytics, and machine learning to recommend innovative solutions.
+Required Skills and Qualifications:
+
+Bachelor’s or Master’s degree in Computer Science, Business Analytics, Data Science, or related field.
+Proven experience (3+ years) in business analysis with hands-on exposure to software development projects.
+Strong knowledge of programming languages such as Python, SQL, or R for data manipulation and analysis.
+Experience working with machine learning models and familiarity with ML lifecycle (training, testing, deployment).
+Proficiency in business intelligence tools like Tableau, Power BI, or similar platforms.
+Excellent communication skills with the ability to translate complex technical concepts into business terms.
+Strong problem-solving skills and the ability to work effectively with cross-functional teams.
+Preferred Qualifications:
+
+Experience with Agile/Scrum development methodologies.
+Familiarity with cloud platforms (AWS, GCP, Azure) and ML frameworks (TensorFlow, PyTorch).
+Knowledge of statistical analysis and data visualization best practices.

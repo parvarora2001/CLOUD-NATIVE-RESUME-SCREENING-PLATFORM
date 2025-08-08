@@ -1,0 +1,14 @@
+PyMuPDF  # for reading PDFs
+python-docx  # for reading DOCX files
+fastapi
+uvicorn
+sentence-transformers==2.2.2
+transformers==4.30.2
+huggingface_hub==0.14.1
+accelerate==0.20.3
+scikit-learn
+requests
+pandas
+torch
+python-multipart
+openai-whisper
