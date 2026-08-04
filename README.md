@@ -215,9 +215,6 @@ The frontend will be live at `https://resume-screening-fb491.web.app`
 
 The platform calls an **Ollama + Gemma2** service running as a separate Cloud Run deployment at:
 
-```
-https://ollama-gemma-757300761760.us-central1.run.app
-```
 
 To deploy your own Ollama instance on Cloud Run, see the [Ollama Cloud Run guide](https://cloud.google.com/run/docs/tutorials/gpu-gemma-with-ollama). Update `GEMMA_API_URL` in `llm_explainer.py` to point to your instance.
 
